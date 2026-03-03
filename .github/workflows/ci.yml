@@ -1,0 +1,25 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Install melos
+        run: dart pub global activate melos
+      - name: Bootstrap
+        run: melos bootstrap
+      - name: Format check
+        run: melos run format
+      - name: Analyze
+        run: melos run analyze
+      - name: Test
+        run: melos run test

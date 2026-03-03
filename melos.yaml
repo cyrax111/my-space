@@ -1,0 +1,19 @@
+name: my_space_monorepo
+packages:
+  - apps/**
+  - packages/**
+  - features/**
+
+scripts:
+  analyze:
+    run: melos exec -- flutter analyze .
+  test:
+    run: melos exec -- flutter test
+  test:coverage:
+    run: melos exec -- flutter test --coverage
+  format:
+    run: melos exec -- dart format .
+  gen:
+    run: melos exec -- dart run build_runner build --delete-conflicting-outputs
+  check:
+    run: melos run format && melos run analyze && melos run test

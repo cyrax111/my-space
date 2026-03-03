@@ -1,0 +1,40 @@
+name: my_space_app
+description: My Space adaptive app
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  go_router: ^14.6.2
+  flutter_bloc: ^8.1.6
+  injectable: ^2.5.0
+  get_it: ^8.0.2
+  core_ui:
+    path: ../../packages/core/core_ui
+  core_platform:
+    path: ../../packages/core/core_platform
+  core_observability:
+    path: ../../packages/core/core_observability
+  core_feature_flags:
+    path: ../../packages/core/core_feature_flags
+  blog:
+    path: ../../features/blog
+  portfolio:
+    path: ../../features/portfolio
+  about:
+    path: ../../features/about
+  contact:
+    path: ../../features/contact
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  build_runner: ^2.4.13
+  injectable_generator: ^2.6.2

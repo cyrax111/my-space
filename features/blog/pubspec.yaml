@@ -1,0 +1,28 @@
+name: blog
+description: blog feature package
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_bloc: ^8.1.6
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+  core_domain:
+    path: ../../packages/core/core_domain
+  core_data:
+    path: ../../packages/core/core_data
+  core_ui:
+    path: ../../packages/core/core_ui
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  build_runner: ^2.4.13
+  freezed: ^2.5.7
+  json_serializable: ^6.9.0
