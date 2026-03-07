@@ -1,5 +1,4 @@
 import 'package:core_domain/core_domain.dart';
-import 'package:fpdart/fpdart.dart';
 
 import '../entities/blog_post.dart';
 import '../repositories/blog_repository.dart';
@@ -11,6 +10,6 @@ class GetBlogPostBySlug extends UseCase<BlogPost, String> {
   GetBlogPostBySlug(this._repository);
 
   @override
-  Future<Either<Failure, BlogPost>> call(String slug) =>
+  Future<BlogPost> call(String slug) =>
       _repository.getPostBySlug(slug);
 }

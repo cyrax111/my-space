@@ -1,7 +1,6 @@
 import 'package:core_domain/core_domain.dart';
 import 'package:feature_blog/feature_blog.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockBlogRepository extends Mock implements BlogRepository {}
@@ -31,15 +30,10 @@ void main() {
           tag: any(named: 'tag'),
           limit: any(named: 'limit'),
           offset: any(named: 'offset'),
-        )).thenAnswer((_) async => right([samplePost]));
+        )).thenAnswer((_) async => [samplePost]);
 
-    final result = await useCase(const GetBlogPostsParams());
-
-    expect(result.isRight(), isTrue);
-    result.fold(
-      (_) => fail('Should be right'),
-      (posts) => expect(posts, hasLength(1)),
-    );
+    final posts = await useCase(const GetBlogPostsParams());
+    expect(posts, hasLength(1));
   });
 
   test('passes tag parameter to repository', () async {
@@ -47,7 +41,7 @@ void main() {
           tag: 'flutter',
           limit: any(named: 'limit'),
           offset: any(named: 'offset'),
-        )).thenAnswer((_) async => right([]));
+        )).thenAnswer((_) async => []);
 
     await useCase(const GetBlogPostsParams(tag: 'flutter'));
 
@@ -58,16 +52,16 @@ void main() {
         )).called(1);
   });
 
-  test('propagates failure from repository', () async {
+  test('propagates exception from repository', () async {
     when(() => mockRepository.getPosts(
           tag: any(named: 'tag'),
           limit: any(named: 'limit'),
           offset: any(named: 'offset'),
-        )).thenAnswer(
-      (_) async => left(const Failure.network(message: 'offline')),
-    );
+        )).thenThrow(const NetworkException('offline'));
 
-    final result = await useCase(const GetBlogPostsParams());
-    expect(result.isLeft(), isTrue);
+    expect(
+      () => useCase(const GetBlogPostsParams()),
+      throwsA(isA<NetworkException>()),
+    );
   });
 }

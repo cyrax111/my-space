@@ -59,7 +59,7 @@ Presentation → Domain ← Data
 | Navigation | GoRouter |
 | DI | GetIt |
 | Monorepo | Melos |
-| Error Handling | fpdart (Either<Failure, T>) |
+| Error Handling | Sealed AppException hierarchy (Dart 3) |
 | Immutability | Freezed |
 | Theme | Material 3 + Inter font |
 

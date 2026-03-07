@@ -1,11 +1,9 @@
-import 'package:fpdart/fpdart.dart';
-
 import '../failures/failure.dart';
 
 /// Type-safe email address value object.
 ///
 /// Validates the email format on creation.
-/// Use [EmailAddress.create] to safely construct.
+/// Throws [ValidationException] if the input is invalid.
 class EmailAddress {
   final String value;
 
@@ -13,20 +11,31 @@ class EmailAddress {
 
   /// Creates a validated [EmailAddress].
   ///
-  /// Returns [Left(Failure.validation)] if the email is invalid.
-  static Either<Failure, EmailAddress> create(String input) {
+  /// Throws [ValidationException] if the email is invalid.
+  factory EmailAddress(String input) {
     final trimmed = input.trim().toLowerCase();
     if (trimmed.isEmpty) {
-      return left(
-        const Failure.validation(errors: {'email': 'Email is required'}),
+      throw const ValidationException(
+        'Email is required',
+        fieldErrors: {'email': 'Email is required'},
       );
     }
     if (!_emailRegex.hasMatch(trimmed)) {
-      return left(
-        const Failure.validation(errors: {'email': 'Invalid email format'}),
+      throw const ValidationException(
+        'Invalid email format',
+        fieldErrors: {'email': 'Invalid email format'},
       );
     }
-    return right(EmailAddress._(trimmed));
+    return EmailAddress._(trimmed);
+  }
+
+  /// Creates a validated [EmailAddress], returning null if invalid.
+  static EmailAddress? tryCreate(String input) {
+    try {
+      return EmailAddress(input);
+    } on ValidationException {
+      return null;
+    }
   }
 
   static final _emailRegex = RegExp(

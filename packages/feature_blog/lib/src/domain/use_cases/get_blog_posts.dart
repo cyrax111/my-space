@@ -1,5 +1,4 @@
 import 'package:core_domain/core_domain.dart';
-import 'package:fpdart/fpdart.dart';
 
 import '../entities/blog_post.dart';
 import '../repositories/blog_repository.dart';
@@ -20,7 +19,7 @@ class GetBlogPosts extends UseCase<List<BlogPost>, GetBlogPostsParams> {
   GetBlogPosts(this._repository);
 
   @override
-  Future<Either<Failure, List<BlogPost>>> call(GetBlogPostsParams params) =>
+  Future<List<BlogPost>> call(GetBlogPostsParams params) =>
       _repository.getPosts(
         tag: params.tag,
         limit: params.limit,

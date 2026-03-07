@@ -2,7 +2,6 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:core_domain/core_domain.dart';
 import 'package:feature_portfolio/feature_portfolio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockGetProjects extends Mock implements GetProjects {}
@@ -36,7 +35,7 @@ void main() {
       'emits [loading, loaded] when getProjects succeeds',
       setUp: () {
         when(() => mockGetProjects(any()))
-            .thenAnswer((_) async => right([sampleProject]));
+            .thenAnswer((_) async => [sampleProject]);
       },
       build: buildBloc,
       act: (bloc) => bloc.add(const PortfolioEvent.loadRequested()),
@@ -49,9 +48,8 @@ void main() {
     blocTest<PortfolioBloc, PortfolioState>(
       'emits [loading, error] when getProjects fails',
       setUp: () {
-        when(() => mockGetProjects(any())).thenAnswer(
-          (_) async => left(const Failure.network(message: 'offline')),
-        );
+        when(() => mockGetProjects(any()))
+            .thenThrow(const NetworkException('offline'));
       },
       build: buildBloc,
       act: (bloc) => bloc.add(const PortfolioEvent.loadRequested()),
@@ -65,7 +63,7 @@ void main() {
       'passes type filter to use case',
       setUp: () {
         when(() => mockGetProjects(any()))
-            .thenAnswer((_) async => right([]));
+            .thenAnswer((_) async => []);
       },
       build: buildBloc,
       act: (bloc) => bloc.add(
@@ -85,7 +83,7 @@ void main() {
       'reloads projects',
       setUp: () {
         when(() => mockGetProjects(any()))
-            .thenAnswer((_) async => right([sampleProject]));
+            .thenAnswer((_) async => [sampleProject]);
       },
       build: buildBloc,
       act: (bloc) => bloc.add(const PortfolioEvent.refreshRequested()),

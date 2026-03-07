@@ -1,3 +1,4 @@
+import 'package:core_domain/core_domain.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/entities/project.dart';
@@ -25,32 +26,31 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
     _currentFilter = event.type;
     emit(const PortfolioState.loading());
 
-    final result = await _getProjects(GetProjectsParams(type: event.type));
-
-    result.fold(
-      (failure) =>
-          emit(PortfolioState.error(message: failure.displayMessage)),
-      (projects) => emit(PortfolioState.loaded(
+    try {
+      final projects =
+          await _getProjects(GetProjectsParams(type: event.type));
+      emit(PortfolioState.loaded(
         projects: projects,
         activeFilter: event.type,
-      )),
-    );
+      ));
+    } on AppException catch (e) {
+      emit(PortfolioState.error(message: e.message));
+    }
   }
 
   Future<void> _onRefreshRequested(
     PortfolioRefreshRequested event,
     Emitter<PortfolioState> emit,
   ) async {
-    final result =
-        await _getProjects(GetProjectsParams(type: _currentFilter));
-
-    result.fold(
-      (failure) =>
-          emit(PortfolioState.error(message: failure.displayMessage)),
-      (projects) => emit(PortfolioState.loaded(
+    try {
+      final projects =
+          await _getProjects(GetProjectsParams(type: _currentFilter));
+      emit(PortfolioState.loaded(
         projects: projects,
         activeFilter: _currentFilter,
-      )),
-    );
+      ));
+    } on AppException catch (e) {
+      emit(PortfolioState.error(message: e.message));
+    }
   }
 }

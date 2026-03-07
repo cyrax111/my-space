@@ -1,13 +1,13 @@
 /// Core domain layer for My Space application.
 ///
 /// Provides base abstractions for Clean Architecture:
-/// - [Failure] hierarchy for unified error handling
+/// - [AppException] hierarchy for unified error handling
 /// - [UseCase] contracts for business logic
 /// - [Entity] base class for domain objects
 /// - Value objects for type-safe domain primitives
 library core_domain;
 
-// Failures
+// Exceptions
 export 'src/failures/failure.dart';
 
 // Use Cases

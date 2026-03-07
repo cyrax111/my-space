@@ -87,26 +87,38 @@ Use `flutter_bloc` with freezed events and states for all features.
 
 ---
 
-## ADR-004: Either<Failure, T> for Error Handling
+## ADR-004: Sealed Exception Hierarchy for Error Handling
 
-**Status:** Accepted  
-**Date:** 2026-03-06
+**Status:** Accepted (revised)  
+**Date:** 2026-03-06  
+**Revised:** 2026-03-08
 
 ### Context
 
-Dart's exception system is invisible in the type system — callers have no way to know what can fail.
+Need a structured error handling strategy that makes expected failures visible and type-safe.
 
 ### Decision
 
-Use `fpdart`'s `Either<Failure, T>` for all repository and use case return types. Define a sealed `Failure` class hierarchy using freezed.
+Use a `sealed class AppException implements Exception` hierarchy with standard `try/catch` and Dart 3 exhaustive pattern matching. Removed `fpdart` (`Either<Failure, T>`) in favor of idiomatic Dart exceptions.
+
+### Rationale for Revision
+
+The original approach used `Either<Failure, T>` from fpdart. After review, we switched to exceptions because:
+
+1. `Either` doesn't prevent exceptions — functions can still throw regardless
+2. Adds an external dependency (`fpdart`) and unfamiliar FP patterns
+3. More boilerplate (`fold`, `flatMap`, wrapping/unwrapping)
+4. Dart 3 sealed classes give us exhaustive `switch` on exception subtypes anyway
 
 ### Consequences
 
-- ✅ Errors are explicit in type signatures — compiler enforces handling
-- ✅ Failure types (network, validation, notFound, etc.) enable type-safe error branching
-- ✅ `displayMessage` and `isRetryable` extensions centralize error presentation logic
-- ⚠️ Functional style unfamiliar to some Dart developers
-- ⚠️ Adds `fpdart` as a core dependency
+- ✅ Idiomatic Dart — follows ecosystem conventions
+- ✅ Less boilerplate (no `fold`/`Either` wrapping)
+- ✅ Dart 3 sealed classes still provide exhaustive pattern matching
+- ✅ No `fpdart` dependency
+- ✅ Repository contracts are simpler: `Future<T>` instead of `Future<Either<Failure, T>>`
+- ⚠️ No compile-time enforcement of error handling (relies on discipline + dartdoc)
+- ⚠️ Must document expected exceptions via `/// Throws [...]` comments
 
 ---
 

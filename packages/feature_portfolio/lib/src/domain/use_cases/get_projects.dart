@@ -1,5 +1,4 @@
 import 'package:core_domain/core_domain.dart';
-import 'package:fpdart/fpdart.dart';
 
 import '../entities/project.dart';
 import '../repositories/portfolio_repository.dart';
@@ -17,6 +16,6 @@ class GetProjects extends UseCase<List<Project>, GetProjectsParams> {
   GetProjects(this._repository);
 
   @override
-  Future<Either<Failure, List<Project>>> call(GetProjectsParams params) =>
+  Future<List<Project>> call(GetProjectsParams params) =>
       _repository.getProjects(type: params.type);
 }

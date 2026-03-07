@@ -8,7 +8,7 @@ My Space follows **Clean Architecture** with a **feature-first monorepo** struct
 
 1. **Dependency Rule** — Dependencies point inward. Domain has zero framework deps.
 2. **Feature Isolation** — Features don't import each other. Communication goes through the app shell or shared core packages.
-3. **Explicit Errors** — No exceptions in the domain layer. Every failure is an `Either<Failure, T>`.
+3. **Explicit Errors** — Expected failures use a sealed `AppException` hierarchy with Dart 3 pattern matching.
 4. **Immutability** — All domain entities use Freezed for compile-time immutability.
 
 ## Package Categories
@@ -19,7 +19,7 @@ Shared infrastructure consumed by features. No business logic.
 
 | Package | Purpose |
 |---|---|
-| `core_domain` | Base entities, failures (`Failure` sealed class), use case contracts, value objects |
+| `core_domain` | Base entities, exceptions (`AppException` sealed class), use case contracts, value objects |
 | `core_ui` | Design system: theme (Material 3 + Inter), adaptive scaffold, responsive builder, 10+ widgets |
 | `core_logging` | Pluggable logger abstraction (console, composite) |
 | `core_analytics` | Analytics provider interface (noop, composite) |
@@ -66,27 +66,40 @@ Benefits:
 
 ## Error Handling
 
-The `Failure` sealed class hierarchy:
+The `AppException` sealed class hierarchy:
 
 ```
-Failure
-├── NetworkFailure      (statusCode, message)
-├── AuthFailure         (reason)
-├── ValidationFailure   (errors: Map<String, String>)
-├── StorageFailure      (message)
-├── NotFoundFailure     (entity, id)
-├── RateLimitedFailure  (retryAfter)
-├── PermissionDenied    (message)
-└── UnknownFailure      (message, error, stackTrace)
+AppException
+├── NetworkException          (message, statusCode)
+├── AuthException             (message)
+├── ValidationException       (message, fieldErrors: Map<String, String>)
+├── StorageException          (message)
+├── NotFoundException         (message, entity, id)
+├── RateLimitedException      (message, retryAfter)
+├── PermissionDeniedException (message)
+└── UnknownException          (message, cause, stackTrace)
 ```
 
-Every repository returns `Future<Either<Failure, T>>`. Use cases do the same. BLoCs fold the result:
+Repositories throw `AppException` subtypes for expected failures. BLoCs catch them:
 
 ```dart
-result.fold(
-  (failure) => emit(State.error(failure.displayMessage)),
-  (data) => emit(State.loaded(data: data)),
-);
+try {
+  final posts = await getBlogPosts(params);
+  emit(State.loaded(posts: posts));
+} on AppException catch (e) {
+  emit(State.error(message: e.message));
+}
+```
+
+Dart 3 exhaustive pattern matching on the sealed class:
+
+```dart
+final message = switch (e) {
+  NetworkException(:final statusCode) => 'Network error ($statusCode)',
+  NotFoundException() => 'Not found',
+  ValidationException(:final fieldErrors) => fieldErrors.values.first,
+  _ => e.message,
+};
 ```
 
 ## Navigation: GoRouter
@@ -137,7 +150,7 @@ Type-safe domain primitives that validate on construction:
 - `Slug` — URL-safe alphanumeric with hyphens
 - `UrlValue` — Parsed URI with scheme validation
 
-All return `Either<Failure, T>` from their factory methods.
+All throw `ValidationException` on invalid input. Each also provides a `tryCreate` static method that returns `null` instead of throwing.
 
 ## Testing Strategy
 

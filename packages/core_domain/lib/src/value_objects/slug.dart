@@ -1,33 +1,44 @@
-import 'package:fpdart/fpdart.dart';
-
 import '../failures/failure.dart';
 
 /// URL-safe slug value object (e.g., "my-first-post").
 ///
 /// Only allows lowercase alphanumeric characters and hyphens.
+/// Throws [ValidationException] if the input is invalid.
 class Slug {
   final String value;
 
   const Slug._(this.value);
 
   /// Creates a validated [Slug].
-  static Either<Failure, Slug> create(String input) {
+  ///
+  /// Throws [ValidationException] if the slug is invalid.
+  factory Slug(String input) {
     final trimmed = input.trim().toLowerCase();
     if (trimmed.isEmpty) {
-      return left(
-        const Failure.validation(errors: {'slug': 'Slug is required'}),
+      throw const ValidationException(
+        'Slug is required',
+        fieldErrors: {'slug': 'Slug is required'},
       );
     }
     if (!_slugRegex.hasMatch(trimmed)) {
-      return left(
-        const Failure.validation(
-          errors: {
-            'slug': 'Slug must contain only lowercase letters, numbers, and hyphens',
-          },
-        ),
+      throw const ValidationException(
+        'Slug must contain only lowercase letters, numbers, and hyphens',
+        fieldErrors: {
+          'slug':
+              'Slug must contain only lowercase letters, numbers, and hyphens',
+        },
       );
     }
-    return right(Slug._(trimmed));
+    return Slug._(trimmed);
+  }
+
+  /// Creates a validated [Slug], returning null if invalid.
+  static Slug? tryCreate(String input) {
+    try {
+      return Slug(input);
+    } on ValidationException {
+      return null;
+    }
   }
 
   /// Generates a slug from a title string.

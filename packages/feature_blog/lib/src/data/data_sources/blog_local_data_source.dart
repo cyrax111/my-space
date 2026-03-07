@@ -106,7 +106,7 @@ class GetBlogPosts extends UseCase<List<BlogPost>, GetBlogPostsParams> {
   GetBlogPosts(this._repository);
 
   @override
-  Future<Either<Failure, List<BlogPost>>> call(GetBlogPostsParams params) =>
+  Future<List<BlogPost>> call(GetBlogPostsParams params) =>
       _repository.getPosts(tag: params.tag);
 }
 ```
@@ -156,11 +156,12 @@ class BlogBloc extends Bloc<BlogEvent, BlogState> {
     Emitter<BlogState> emit,
   ) async {
     emit(const BlogState.loading());
-    final result = await _getBlogPosts(GetBlogPostsParams(tag: event.tag));
-    result.fold(
-      (failure) => emit(BlogState.error(failure.displayMessage)),
-      (posts) => emit(BlogState.loaded(posts: posts)),
-    );
+    try {
+      final posts = await _getBlogPosts(GetBlogPostsParams(tag: event.tag));
+      emit(BlogState.loaded(posts: posts));
+    } on AppException catch (e) {
+      emit(BlogState.error(e.message));
+    }
   }
 }
 ```
@@ -221,50 +222,79 @@ The key is using `LayoutBuilder` and breakpoint enums to switch between layout s
   ),
   BlogPostModel(
     id: '4',
-    title: 'Type-Safe Error Handling with Either',
+    title: 'Type-Safe Error Handling with Sealed Classes',
     slug: 'type-safe-error-handling',
     excerpt:
-        'Replace try-catch spaghetti with functional error handling '
-        'using fpdart\'s Either type.',
+        'Build a structured exception hierarchy using Dart 3 sealed classes '
+        'for clean, exhaustive error handling.',
     content: '''
-# Type-Safe Error Handling with Either
+# Type-Safe Error Handling with Sealed Classes
 
-Exceptions are invisible in Dart's type system. `Either<Failure, T>` makes errors explicit and enforceable at compile time.
+Dart 3 sealed classes give us exhaustive pattern matching for error handling — combining the simplicity of exceptions with type safety.
 
-## The Problem with Exceptions
+## The Approach
+
+Define a sealed exception hierarchy:
 
 ```dart
-// Caller has NO idea this can throw
+sealed class AppException implements Exception {
+  final String message;
+  const AppException(this.message);
+}
+
+class NetworkException extends AppException {
+  final int? statusCode;
+  const NetworkException(super.message, {this.statusCode});
+}
+
+class NotFoundException extends AppException {
+  const NotFoundException(super.message);
+}
+
+class ValidationException extends AppException {
+  final Map<String, String> fieldErrors;
+  const ValidationException(super.message, {this.fieldErrors = const {}});
+}
+```
+
+## Usage in Repositories
+
+```dart
 Future<User> getUser(String id) async {
   final response = await http.get(uri);
-  if (response.statusCode != 200) throw ServerException();
+  if (response.statusCode == 404) {
+    throw NotFoundException('User not found');
+  }
+  if (response.statusCode != 200) {
+    throw NetworkException('Server error', statusCode: response.statusCode);
+  }
   return User.fromJson(response.body);
 }
 ```
 
-## The Either Solution
+## Exhaustive Handling
 
 ```dart
-// Caller MUST handle the failure case
-Future<Either<Failure, User>> getUser(String id) async {
-  try {
-    final response = await http.get(uri);
-    if (response.statusCode != 200) {
-      return left(Failure.network(statusCode: response.statusCode));
-    }
-    return right(User.fromJson(response.body));
-  } catch (e) {
-    return left(Failure.unknown(error: e));
-  }
+try {
+  final user = await getUser(id);
+  emit(UserLoaded(user));
+} on AppException catch (e) {
+  final message = switch (e) {
+    NetworkException(:final statusCode) => 'Network error (\$statusCode)',
+    NotFoundException() => 'User not found',
+    ValidationException(:final fieldErrors) => fieldErrors.values.first,
+    _ => e.message,
+  };
+  emit(UserError(message));
 }
 ```
 
-With `Either`, errors are part of the type signature. The compiler enforces handling.
+The sealed class ensures the compiler warns you if you miss a case. Clean, idiomatic Dart.
 ''',
     author: 'Alex',
     publishedAt: _now.subtract(const Duration(days: 21)),
     updatedAt: _now.subtract(const Duration(days: 21)),
-    tags: ['Dart', 'Functional Programming', 'Error Handling'],
+    tags: ['Dart', 'Error Handling', 'Sealed Classes'],
     readTimeMinutes: 4,
   ),
 ];

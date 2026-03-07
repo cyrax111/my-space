@@ -1,3 +1,4 @@
+import 'package:core_domain/core_domain.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/use_cases/get_blog_posts.dart';
@@ -33,14 +34,14 @@ class BlogBloc extends Bloc<BlogEvent, BlogState> {
     _currentTag = event.tag;
     emit(const BlogState.loading());
 
-    final result = await _getBlogPosts(
-      GetBlogPostsParams(tag: event.tag),
-    );
-
-    result.fold(
-      (failure) => emit(BlogState.error(message: failure.displayMessage)),
-      (posts) => emit(BlogState.loaded(posts: posts, activeTag: event.tag)),
-    );
+    try {
+      final posts = await _getBlogPosts(
+        GetBlogPostsParams(tag: event.tag),
+      );
+      emit(BlogState.loaded(posts: posts, activeTag: event.tag));
+    } on AppException catch (e) {
+      emit(BlogState.error(message: e.message));
+    }
   }
 
   Future<void> _onPostSelected(
@@ -50,12 +51,12 @@ class BlogBloc extends Bloc<BlogEvent, BlogState> {
     final currentState = state;
     if (currentState is! BlogLoaded) return;
 
-    final result = await _getBlogPostBySlug(event.slug);
-
-    result.fold(
-      (failure) => emit(BlogState.error(message: failure.displayMessage)),
-      (post) => emit(currentState.copyWith(selectedPost: post)),
-    );
+    try {
+      final post = await _getBlogPostBySlug(event.slug);
+      emit(currentState.copyWith(selectedPost: post));
+    } on AppException catch (e) {
+      emit(BlogState.error(message: e.message));
+    }
   }
 
   void _onPostDeselected(
@@ -71,14 +72,13 @@ class BlogBloc extends Bloc<BlogEvent, BlogState> {
     BlogRefreshRequested event,
     Emitter<BlogState> emit,
   ) async {
-    final result = await _getBlogPosts(
-      GetBlogPostsParams(tag: _currentTag),
-    );
-
-    result.fold(
-      (failure) => emit(BlogState.error(message: failure.displayMessage)),
-      (posts) =>
-          emit(BlogState.loaded(posts: posts, activeTag: _currentTag)),
-    );
+    try {
+      final posts = await _getBlogPosts(
+        GetBlogPostsParams(tag: _currentTag),
+      );
+      emit(BlogState.loaded(posts: posts, activeTag: _currentTag));
+    } on AppException catch (e) {
+      emit(BlogState.error(message: e.message));
+    }
   }
 }

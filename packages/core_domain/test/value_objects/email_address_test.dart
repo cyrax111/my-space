@@ -4,57 +4,67 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('EmailAddress', () {
     test('creates valid email', () {
-      final result = EmailAddress.create('test@example.com');
-      expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('Should be right'),
-        (email) => expect(email.value, 'test@example.com'),
-      );
+      final email = EmailAddress('test@example.com');
+      expect(email.value, 'test@example.com');
     });
 
     test('trims and lowercases input', () {
-      final result = EmailAddress.create('  Test@Example.COM  ');
-      expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('Should be right'),
-        (email) => expect(email.value, 'test@example.com'),
-      );
+      final email = EmailAddress('  Test@Example.COM  ');
+      expect(email.value, 'test@example.com');
     });
 
     test('rejects empty string', () {
-      final result = EmailAddress.create('');
-      expect(result.isLeft(), isTrue);
+      expect(
+        () => EmailAddress(''),
+        throwsA(isA<ValidationException>()),
+      );
     });
 
     test('rejects whitespace-only string', () {
-      final result = EmailAddress.create('   ');
-      expect(result.isLeft(), isTrue);
+      expect(
+        () => EmailAddress('   '),
+        throwsA(isA<ValidationException>()),
+      );
     });
 
     test('rejects invalid format (no @)', () {
-      final result = EmailAddress.create('testexample.com');
-      expect(result.isLeft(), isTrue);
+      expect(
+        () => EmailAddress('testexample.com'),
+        throwsA(isA<ValidationException>()),
+      );
     });
 
     test('rejects invalid format (no domain)', () {
-      final result = EmailAddress.create('test@');
-      expect(result.isLeft(), isTrue);
+      expect(
+        () => EmailAddress('test@'),
+        throwsA(isA<ValidationException>()),
+      );
+    });
+
+    test('tryCreate returns value for valid email', () {
+      final email = EmailAddress.tryCreate('a@b.com');
+      expect(email, isNotNull);
+      expect(email!.value, 'a@b.com');
+    });
+
+    test('tryCreate returns null for invalid email', () {
+      expect(EmailAddress.tryCreate('bad'), isNull);
     });
 
     test('equality works for same emails', () {
-      final a = EmailAddress.create('a@b.com').getOrElse((_) => throw '');
-      final b = EmailAddress.create('a@b.com').getOrElse((_) => throw '');
+      final a = EmailAddress('a@b.com');
+      final b = EmailAddress('a@b.com');
       expect(a, equals(b));
     });
 
     test('inequality for different emails', () {
-      final a = EmailAddress.create('a@b.com').getOrElse((_) => throw '');
-      final b = EmailAddress.create('c@d.com').getOrElse((_) => throw '');
+      final a = EmailAddress('a@b.com');
+      final b = EmailAddress('c@d.com');
       expect(a, isNot(equals(b)));
     });
 
     test('toString returns value', () {
-      final email = EmailAddress.create('a@b.com').getOrElse((_) => throw '');
+      final email = EmailAddress('a@b.com');
       expect(email.toString(), 'a@b.com');
     });
   });

@@ -1,5 +1,4 @@
 import 'package:core_domain/core_domain.dart';
-import 'package:fpdart/fpdart.dart';
 
 import '../entities/contact_message.dart';
 
@@ -7,9 +6,11 @@ import '../entities/contact_message.dart';
 ///
 /// Currently simulates sending — a real implementation would
 /// call an API endpoint or send an email.
+///
+/// Throws [ValidationException] if fields are invalid.
 class SendContactMessage extends UseCase<void, ContactMessage> {
   @override
-  Future<Either<Failure, void>> call(ContactMessage params) async {
+  Future<void> call(ContactMessage params) async {
     // Validate fields
     final errors = <String, String>{};
 
@@ -17,8 +18,7 @@ class SendContactMessage extends UseCase<void, ContactMessage> {
       errors['name'] = 'Name is required';
     }
 
-    final emailResult = EmailAddress.create(params.email);
-    if (emailResult.isLeft()) {
+    if (EmailAddress.tryCreate(params.email) == null) {
       errors['email'] = 'Please enter a valid email address';
     }
 
@@ -31,12 +31,13 @@ class SendContactMessage extends UseCase<void, ContactMessage> {
     }
 
     if (errors.isNotEmpty) {
-      return left(Failure.validation(errors: errors));
+      throw ValidationException(
+        errors.values.first,
+        fieldErrors: errors,
+      );
     }
 
     // Simulate network delay
     await Future<void>.delayed(const Duration(seconds: 1));
-
-    return right(null);
   }
 }

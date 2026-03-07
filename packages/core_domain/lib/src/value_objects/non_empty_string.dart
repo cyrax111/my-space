@@ -1,8 +1,8 @@
-import 'package:fpdart/fpdart.dart';
-
 import '../failures/failure.dart';
 
 /// A string that is guaranteed to be non-empty after trimming.
+///
+/// Throws [ValidationException] if the input is empty or exceeds [maxLength].
 class NonEmptyString {
   final String value;
 
@@ -11,25 +11,41 @@ class NonEmptyString {
   /// Creates a validated [NonEmptyString].
   ///
   /// [fieldName] is used in the validation error message.
-  static Either<Failure, NonEmptyString> create(
+  /// Throws [ValidationException] if validation fails.
+  factory NonEmptyString(
     String input, {
     String fieldName = 'field',
     int? maxLength,
   }) {
     final trimmed = input.trim();
     if (trimmed.isEmpty) {
-      return left(
-        Failure.validation(errors: {fieldName: '$fieldName is required'}),
+      throw ValidationException(
+        '$fieldName is required',
+        fieldErrors: {fieldName: '$fieldName is required'},
       );
     }
     if (maxLength != null && trimmed.length > maxLength) {
-      return left(
-        Failure.validation(
-          errors: {fieldName: '$fieldName must be $maxLength characters or less'},
-        ),
+      throw ValidationException(
+        '$fieldName must be $maxLength characters or less',
+        fieldErrors: {
+          fieldName: '$fieldName must be $maxLength characters or less',
+        },
       );
     }
-    return right(NonEmptyString._(trimmed));
+    return NonEmptyString._(trimmed);
+  }
+
+  /// Creates a validated [NonEmptyString], returning null if invalid.
+  static NonEmptyString? tryCreate(
+    String input, {
+    String fieldName = 'field',
+    int? maxLength,
+  }) {
+    try {
+      return NonEmptyString(input, fieldName: fieldName, maxLength: maxLength);
+    } on ValidationException {
+      return null;
+    }
   }
 
   @override

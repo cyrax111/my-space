@@ -1,3 +1,4 @@
+import 'package:core_domain/core_domain.dart';
 import 'package:feature_blog/feature_blog.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -26,80 +27,69 @@ void main() {
   );
 
   group('getPosts', () {
-    test('returns Right with posts on success', () async {
+    test('returns posts on success', () async {
       when(() => mockDataSource.getPosts(
             tag: any(named: 'tag'),
             limit: any(named: 'limit'),
             offset: any(named: 'offset'),
           )).thenAnswer((_) async => [sampleModel]);
 
-      final result = await repository.getPosts();
-
-      expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('Should be right'),
-        (posts) {
-          expect(posts, hasLength(1));
-          expect(posts.first.title, 'Test');
-        },
-      );
+      final posts = await repository.getPosts();
+      expect(posts, hasLength(1));
+      expect(posts.first.title, 'Test');
     });
 
-    test('returns Left on exception', () async {
+    test('throws UnknownException on data source error', () async {
       when(() => mockDataSource.getPosts(
             tag: any(named: 'tag'),
             limit: any(named: 'limit'),
             offset: any(named: 'offset'),
           )).thenThrow(Exception('db error'));
 
-      final result = await repository.getPosts();
-      expect(result.isLeft(), isTrue);
+      expect(
+        () => repository.getPosts(),
+        throwsA(isA<UnknownException>()),
+      );
     });
   });
 
   group('getPostBySlug', () {
-    test('returns Right when post found', () async {
+    test('returns post when found', () async {
       when(() => mockDataSource.getPostBySlug('test'))
           .thenAnswer((_) async => sampleModel);
 
-      final result = await repository.getPostBySlug('test');
-
-      expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('Should be right'),
-        (post) => expect(post.slug, 'test'),
-      );
+      final post = await repository.getPostBySlug('test');
+      expect(post.slug, 'test');
     });
 
-    test('returns Left(NotFound) when post not found', () async {
+    test('throws NotFoundException when post not found', () async {
       when(() => mockDataSource.getPostBySlug('missing'))
           .thenAnswer((_) async => null);
 
-      final result = await repository.getPostBySlug('missing');
-      expect(result.isLeft(), isTrue);
+      expect(
+        () => repository.getPostBySlug('missing'),
+        throwsA(isA<NotFoundException>()),
+      );
     });
 
-    test('returns Left on exception', () async {
+    test('throws UnknownException on data source error', () async {
       when(() => mockDataSource.getPostBySlug(any()))
           .thenThrow(Exception('error'));
 
-      final result = await repository.getPostBySlug('x');
-      expect(result.isLeft(), isTrue);
+      expect(
+        () => repository.getPostBySlug('x'),
+        throwsA(isA<UnknownException>()),
+      );
     });
   });
 
   group('getTags', () {
-    test('returns Right with tags on success', () async {
+    test('returns tags on success', () async {
       when(() => mockDataSource.getTags())
           .thenAnswer((_) async => ['dart', 'flutter']);
 
-      final result = await repository.getTags();
-
-      expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('Should be right'),
-        (tags) => expect(tags, ['dart', 'flutter']),
-      );
+      final tags = await repository.getTags();
+      expect(tags, ['dart', 'flutter']);
     });
   });
 }

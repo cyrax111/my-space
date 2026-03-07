@@ -4,41 +4,49 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('Slug', () {
     test('creates valid slug', () {
-      final result = Slug.create('my-first-post');
-      expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('Should be right'),
-        (slug) => expect(slug.value, 'my-first-post'),
-      );
+      final slug = Slug('my-first-post');
+      expect(slug.value, 'my-first-post');
     });
 
     test('trims and lowercases', () {
-      final result = Slug.create('  My-Post  ');
-      expect(result.isRight(), isTrue);
-      result.fold(
-        (_) => fail('Should be right'),
-        (slug) => expect(slug.value, 'my-post'),
-      );
+      final slug = Slug('  My-Post  ');
+      expect(slug.value, 'my-post');
     });
 
     test('rejects empty string', () {
-      final result = Slug.create('');
-      expect(result.isLeft(), isTrue);
+      expect(
+        () => Slug(''),
+        throwsA(isA<ValidationException>()),
+      );
     });
 
     test('rejects special characters', () {
-      final result = Slug.create('my post!');
-      expect(result.isLeft(), isTrue);
+      expect(
+        () => Slug('my post!'),
+        throwsA(isA<ValidationException>()),
+      );
     });
 
     test('rejects leading hyphens', () {
-      final result = Slug.create('-my-post');
-      expect(result.isLeft(), isTrue);
+      expect(
+        () => Slug('-my-post'),
+        throwsA(isA<ValidationException>()),
+      );
     });
 
     test('accepts single word', () {
-      final result = Slug.create('hello');
-      expect(result.isRight(), isTrue);
+      final slug = Slug('hello');
+      expect(slug.value, 'hello');
+    });
+
+    test('tryCreate returns value for valid input', () {
+      final slug = Slug.tryCreate('test');
+      expect(slug, isNotNull);
+      expect(slug!.value, 'test');
+    });
+
+    test('tryCreate returns null for invalid input', () {
+      expect(Slug.tryCreate(''), isNull);
     });
 
     group('fromTitle', () {
@@ -64,8 +72,8 @@ void main() {
     });
 
     test('equality works', () {
-      final a = Slug.create('test').getOrElse((_) => throw '');
-      final b = Slug.create('test').getOrElse((_) => throw '');
+      final a = Slug('test');
+      final b = Slug('test');
       expect(a, equals(b));
     });
   });

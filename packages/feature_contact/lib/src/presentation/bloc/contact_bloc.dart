@@ -31,20 +31,17 @@ class ContactBloc extends Bloc<ContactEvent, ContactState> {
       sentAt: DateTime.now(),
     );
 
-    final result = await _sendContactMessage(message);
-
-    result.fold(
-      (failure) {
-        final fieldErrors = failure is ValidationFailure
-            ? (failure as ValidationFailure).errors
-            : null;
-        emit(ContactState.error(
-          message: failure.displayMessage,
-          fieldErrors: fieldErrors,
-        ));
-      },
-      (_) => emit(const ContactState.success()),
-    );
+    try {
+      await _sendContactMessage(message);
+      emit(const ContactState.success());
+    } on ValidationException catch (e) {
+      emit(ContactState.error(
+        message: e.message,
+        fieldErrors: e.fieldErrors.isNotEmpty ? e.fieldErrors : null,
+      ));
+    } on AppException catch (e) {
+      emit(ContactState.error(message: e.message));
+    }
   }
 
   void _onResetRequested(

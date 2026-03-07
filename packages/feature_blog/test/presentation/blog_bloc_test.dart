@@ -2,7 +2,6 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:core_domain/core_domain.dart';
 import 'package:feature_blog/feature_blog.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockGetBlogPosts extends Mock implements GetBlogPosts {}
@@ -44,7 +43,7 @@ void main() {
       'emits [loading, loaded] when getPosts succeeds',
       setUp: () {
         when(() => mockGetBlogPosts(any()))
-            .thenAnswer((_) async => right([samplePost]));
+            .thenAnswer((_) async => [samplePost]);
       },
       build: buildBloc,
       act: (bloc) => bloc.add(const BlogEvent.loadRequested()),
@@ -57,9 +56,8 @@ void main() {
     blocTest<BlogBloc, BlogState>(
       'emits [loading, error] when getPosts fails',
       setUp: () {
-        when(() => mockGetBlogPosts(any())).thenAnswer(
-          (_) async => left(const Failure.network(message: 'No connection')),
-        );
+        when(() => mockGetBlogPosts(any()))
+            .thenThrow(const NetworkException('No connection'));
       },
       build: buildBloc,
       act: (bloc) => bloc.add(const BlogEvent.loadRequested()),
@@ -73,7 +71,7 @@ void main() {
       'passes tag to use case',
       setUp: () {
         when(() => mockGetBlogPosts(any()))
-            .thenAnswer((_) async => right([]));
+            .thenAnswer((_) async => []);
       },
       build: buildBloc,
       act: (bloc) =>
@@ -91,9 +89,9 @@ void main() {
       'emits loaded with selectedPost when successful',
       setUp: () {
         when(() => mockGetBlogPosts(any()))
-            .thenAnswer((_) async => right([samplePost]));
+            .thenAnswer((_) async => [samplePost]);
         when(() => mockGetBlogPostBySlug('test-post'))
-            .thenAnswer((_) async => right(samplePost));
+            .thenAnswer((_) async => samplePost);
       },
       build: buildBloc,
       seed: () => BlogState.loaded(posts: [samplePost]),
@@ -123,7 +121,7 @@ void main() {
       'reloads posts',
       setUp: () {
         when(() => mockGetBlogPosts(any()))
-            .thenAnswer((_) async => right([samplePost]));
+            .thenAnswer((_) async => [samplePost]);
       },
       build: buildBloc,
       act: (bloc) => bloc.add(const BlogEvent.refreshRequested()),

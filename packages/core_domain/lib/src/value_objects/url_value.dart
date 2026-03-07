@@ -1,35 +1,48 @@
-import 'package:fpdart/fpdart.dart';
-
 import '../failures/failure.dart';
 
 /// Type-safe URL value object.
 ///
 /// Validates that the input is a well-formed HTTP(S) URL.
+/// Throws [ValidationException] if the input is invalid.
 class UrlValue {
   final Uri uri;
 
   const UrlValue._(this.uri);
 
   /// Creates a validated [UrlValue].
-  static Either<Failure, UrlValue> create(String input) {
+  ///
+  /// Throws [ValidationException] if the URL is invalid.
+  factory UrlValue(String input) {
     final trimmed = input.trim();
     if (trimmed.isEmpty) {
-      return left(
-        const Failure.validation(errors: {'url': 'URL is required'}),
+      throw const ValidationException(
+        'URL is required',
+        fieldErrors: {'url': 'URL is required'},
       );
     }
     final uri = Uri.tryParse(trimmed);
     if (uri == null || !uri.hasScheme || !uri.hasAuthority) {
-      return left(
-        const Failure.validation(errors: {'url': 'Invalid URL format'}),
+      throw const ValidationException(
+        'Invalid URL format',
+        fieldErrors: {'url': 'Invalid URL format'},
       );
     }
     if (uri.scheme != 'http' && uri.scheme != 'https') {
-      return left(
-        const Failure.validation(errors: {'url': 'URL must use HTTP or HTTPS'}),
+      throw const ValidationException(
+        'URL must use HTTP or HTTPS',
+        fieldErrors: {'url': 'URL must use HTTP or HTTPS'},
       );
     }
-    return right(UrlValue._(uri));
+    return UrlValue._(uri);
+  }
+
+  /// Creates a validated [UrlValue], returning null if invalid.
+  static UrlValue? tryCreate(String input) {
+    try {
+      return UrlValue(input);
+    } on ValidationException {
+      return null;
+    }
   }
 
   String get value => uri.toString();

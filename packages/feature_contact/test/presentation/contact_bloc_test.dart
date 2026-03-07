@@ -2,7 +2,6 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:core_domain/core_domain.dart';
 import 'package:feature_contact/feature_contact.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockSendContactMessage extends Mock implements SendContactMessage {}
@@ -31,7 +30,7 @@ void main() {
       'emits [submitting, success] when send succeeds',
       setUp: () {
         when(() => mockSendContactMessage(any()))
-            .thenAnswer((_) async => right(null));
+            .thenAnswer((_) async {});
       },
       build: buildBloc,
       act: (bloc) => bloc.add(const ContactEvent.submitRequested(
@@ -49,10 +48,11 @@ void main() {
     blocTest<ContactBloc, ContactState>(
       'emits [submitting, error] when validation fails',
       setUp: () {
-        when(() => mockSendContactMessage(any())).thenAnswer(
-          (_) async => left(const Failure.validation(
-            errors: {'name': 'Name is required'},
-          )),
+        when(() => mockSendContactMessage(any())).thenThrow(
+          const ValidationException(
+            'Name is required',
+            fieldErrors: {'name': 'Name is required'},
+          ),
         );
       },
       build: buildBloc,
@@ -71,10 +71,11 @@ void main() {
     blocTest<ContactBloc, ContactState>(
       'error state includes field errors on validation failure',
       setUp: () {
-        when(() => mockSendContactMessage(any())).thenAnswer(
-          (_) async => left(const Failure.validation(
-            errors: {'email': 'Invalid email'},
-          )),
+        when(() => mockSendContactMessage(any())).thenThrow(
+          const ValidationException(
+            'Invalid email',
+            fieldErrors: {'email': 'Invalid email'},
+          ),
         );
       },
       build: buildBloc,
