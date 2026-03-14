@@ -91,9 +91,6 @@ flutter --version
 
 # Dart SDK (3.0+)
 dart --version
-
-# Melos (for monorepo management)
-dart pub global activate melos
 ```
 
 ### Installation
@@ -103,13 +100,16 @@ dart pub global activate melos
 git clone https://github.com/cyrax111/my-space.git
 cd my-space
 
-# 2. Bootstrap all packages
-melos bootstrap
+# 2. Install workspace dependencies (including Melos)
+dart pub get
 
-# 3. Generate code (freezed, injectable, json_serializable)
-melos run build:runner
+# 3. Bootstrap all packages
+dart run melos bootstrap
 
-# 4. Run the app
+# 4. Generate code (freezed, injectable, json_serializable)
+dart run melos run build:runner
+
+# 5. Run the app
 cd apps/my_space
 flutter run
 ```
@@ -146,31 +146,31 @@ flutter run -d linux    # Linux
 
 ```bash
 # Run all tests
-melos run test
+dart run melos run test
 
 # Run only unit tests
-melos run test:unit
+dart run melos run test:unit
 
 # Run integration tests
-melos run test:integration
+dart run melos run test:integration
 
 # Analyze all packages
-melos run analyze
+dart run melos run analyze
 
 # Format all packages
-melos run format
+dart run melos run format
 
 # Generate code for all packages
-melos run build:runner
+dart run melos run build:runner
 
 # Watch mode for code generation
-melos run build:runner:watch
+dart run melos run build:runner:watch
 
 # Clean all packages
-melos run clean
+dart run melos run clean
 
 # Deep clean (removes all generated files)
-melos run clean:deep
+dart run melos run clean:deep
 ```
 
 ### Running Tests
@@ -197,7 +197,7 @@ When you modify:
 
 Run:
 ```bash
-melos run build:runner
+dart run melos run build:runner
 ```
 
 ## 📱 Responsive Design
@@ -340,7 +340,7 @@ Contributions are welcome! Please follow these steps:
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
 3. Follow the architecture patterns
 4. Write tests (aim for 95%+ coverage)
-5. Run: `melos run analyze && melos run test`
+5. Run: `dart run melos run analyze && dart run melos run test`
 6. Commit: `git commit -m 'Add amazing feature'`
 7. Push: `git push origin feature/amazing-feature`
 8. Create a Pull Request

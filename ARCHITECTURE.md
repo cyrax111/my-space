@@ -244,7 +244,7 @@ crashReporter.recordError(error, stackTrace, fatal: true);
 jobs:
   - lint: flutter analyze
   - format: dart format --set-exit-if-changed
-  - test: melos run test
+  - test: dart run melos run test
   - coverage: Upload to Codecov
   - build: All platforms (iOS/Android/Web/Desktop)
 ```
@@ -253,19 +253,19 @@ jobs:
 
 ```bash
 # Bootstrap all packages
-melos bootstrap
+dart run melos bootstrap
 
 # Run all tests
-melos run test
+dart run melos run test
 
 # Generate code (freezed, json_serializable, etc.)
-melos run build:runner
+dart run melos run build:runner
 
 # Analyze all packages
-melos run analyze
+dart run melos run analyze
 
 # Format code
-melos run format
+dart run melos run format
 
 # Run specific feature tests
 cd packages/feature_blog && flutter test
@@ -329,7 +329,7 @@ cd packages/feature_blog && flutter test
 1. Create feature branch: `git checkout -b feature/name`
 2. Follow architecture patterns
 3. Write tests (aim for 95%+ coverage)
-4. Run `melos run analyze && melos run test`
+4. Run `dart run melos run analyze && dart run melos run test`
 5. Create PR with description
 
 ## Resources

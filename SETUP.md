@@ -23,9 +23,8 @@ This document provides detailed setup instructions for the My Space project.
    Included with Flutter SDK
 
 3. **Melos** (for monorepo management)
-   ```bash
-   dart pub global activate melos
-   ```
+   
+   Melos is included as a dev dependency in the root `pubspec.yaml`. Run `dart pub get` at the project root to install it.
 
 ### Platform-Specific Requirements
 
@@ -87,7 +86,7 @@ Fix any issues reported by Flutter Doctor before proceeding.
 
 ```bash
 # Bootstrap all packages (installs dependencies for all packages)
-melos bootstrap
+dart run melos bootstrap
 ```
 
 This command will:
@@ -99,7 +98,7 @@ This command will:
 
 ```bash
 # Generate code for freezed, json_serializable, injectable
-melos run build:runner
+dart run melos run build:runner
 ```
 
 This will generate:
@@ -111,10 +110,10 @@ This will generate:
 
 ```bash
 # Analyze all packages
-melos run analyze
+dart run melos run analyze
 
 # Run tests (will fail if setup is incomplete)
-melos run test
+dart run melos run test
 ```
 
 ## Running the App
@@ -173,7 +172,7 @@ flutter run -d linux
 For active development, run code generation in watch mode:
 
 ```bash
-melos run build:runner:watch
+dart run melos run build:runner:watch
 ```
 
 This will automatically regenerate files when you make changes.
@@ -182,13 +181,13 @@ This will automatically regenerate files when you make changes.
 
 ```bash
 # Run all tests
-melos run test
+dart run melos run test
 
 # Run unit tests only
-melos run test:unit
+dart run melos run test:unit
 
 # Run integration tests
-melos run test:integration
+dart run melos run test:integration
 
 # Run tests for specific package
 cd packages/feature_blog
@@ -199,13 +198,13 @@ flutter test
 
 ```bash
 # Analyze code
-melos run analyze
+dart run melos run analyze
 
 # Format code
-melos run format
+dart run melos run format
 
 # Check formatting without changing files
-melos run format -- --set-exit-if-changed
+dart run melos run format -- --set-exit-if-changed
 ```
 
 ## IDE Setup
@@ -289,23 +288,24 @@ Create `.vscode/launch.json`:
 
 ### Common Issues
 
-#### 1. `melos: command not found`
+#### 1. `melos: command not found` / no local installation
 
 ```bash
-# Make sure global packages are in your PATH
-export PATH="$PATH":"$HOME/.pub-cache/bin"
+# Melos is a dev dependency in the root pubspec.yaml.
+# Make sure you've run dart pub get at the project root:
+cd my-space
+dart pub get
 
-# Add to your shell profile (.bashrc, .zshrc, etc.)
-echo 'export PATH="$PATH":"$HOME/.pub-cache/bin"' >> ~/.zshrc
+# Then use: dart run melos <command>
 ```
 
 #### 2. Build runner conflicts
 
 ```bash
 # Clean and regenerate
-melos run clean:deep
-melos bootstrap
-melos run build:runner
+dart run melos run clean:deep
+dart run melos bootstrap
+dart run melos run build:runner
 ```
 
 #### 3. iOS pod install fails
@@ -340,16 +340,16 @@ If all else fails:
 
 ```bash
 # Deep clean
-melos run clean:deep
+dart run melos run clean:deep
 
 # Remove all Flutter artifacts
 flutter clean
 
 # Bootstrap from scratch
-melos bootstrap
+dart run melos bootstrap
 
 # Regenerate code
-melos run build:runner
+dart run melos run build:runner
 ```
 
 ## Environment Variables
