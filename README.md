@@ -69,7 +69,6 @@ Presentation → Domain ← Data
 
 - Flutter 3.27+
 - Dart 3.6+
-- Melos (`dart pub global activate melos`)
 
 ### Setup
 
@@ -78,8 +77,11 @@ Presentation → Domain ← Data
 git clone https://github.com/cyrax111/my-space.git
 cd my-space
 
-# Install dependencies across all packages
-melos bootstrap
+# Install workspace dependencies (including Melos)
+dart pub get
+
+# Bootstrap all packages
+dart run melos bootstrap
 
 # Run the app
 cd apps/my_space
@@ -91,10 +93,10 @@ flutter run -d <device>    # Mobile
 ### Development
 
 ```bash
-melos run analyze          # Lint all packages
-melos run format           # Format all packages
-melos run test             # Test all packages
-melos run build:runner     # Code generation (freezed, etc.)
+dart run melos run analyze          # Lint all packages
+dart run melos run format           # Format all packages
+dart run melos run test             # Test all packages
+dart run melos run build:runner     # Code generation (freezed, etc.)
 ```
 
 ## 📱 Adaptive UI
