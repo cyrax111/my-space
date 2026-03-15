@@ -91,7 +91,7 @@ class _LoadedContent extends StatelessWidget {
 
         // Project grid
         SliverAdaptivePadding(
-          sliver: ResponsiveBuilder(
+          sliver: SliverResponsiveBuilder(
             compact: (_) => SliverList.separated(
               itemCount: projects.length,
               separatorBuilder: (_, __) =>

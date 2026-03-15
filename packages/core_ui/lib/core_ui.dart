@@ -16,6 +16,7 @@ export 'src/layout/breakpoints.dart';
 export 'src/layout/adaptive_scaffold.dart';
 export 'src/layout/responsive_builder.dart';
 export 'src/layout/sliver_adaptive_padding.dart';
+export 'src/layout/sliver_responsive_builder.dart';
 
 // Widgets
 export 'src/widgets/app_card.dart';

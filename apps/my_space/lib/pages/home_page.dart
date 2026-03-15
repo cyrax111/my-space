@@ -38,7 +38,7 @@ class HomePage extends StatelessWidget {
         ),
 
         SliverAdaptivePadding(
-          sliver: ResponsiveBuilder(
+          sliver: SliverResponsiveBuilder(
             compact: (_) => SliverList.separated(
               itemCount: _featureCards.length,
               separatorBuilder: (_, __) =>
