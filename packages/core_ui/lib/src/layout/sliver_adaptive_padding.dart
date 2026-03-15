@@ -19,9 +19,10 @@ class SliverAdaptivePadding extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
+    return SliverLayoutBuilder(
       builder: (context, constraints) {
-        final layoutSize = LayoutSize.fromWidth(constraints.maxWidth);
+        final viewportWidth = constraints.crossAxisExtent;
+        final layoutSize = LayoutSize.fromWidth(viewportWidth);
         final padding = switch (layoutSize) {
           LayoutSize.compact => AppSpacing.pagePaddingCompact,
           LayoutSize.medium => AppSpacing.pagePaddingMedium,
@@ -29,9 +30,9 @@ class SliverAdaptivePadding extends StatelessWidget {
         };
 
         double extraPadding = 0;
-        if (constrainWidth && constraints.maxWidth > AppSpacing.maxContentWidth) {
+        if (constrainWidth && viewportWidth > AppSpacing.maxContentWidth) {
           extraPadding =
-              (constraints.maxWidth - AppSpacing.maxContentWidth) / 2;
+              (viewportWidth - AppSpacing.maxContentWidth) / 2;
         }
 
         return SliverPadding(
