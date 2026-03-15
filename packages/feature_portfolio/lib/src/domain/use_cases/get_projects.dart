@@ -1,5 +1,3 @@
-import 'package:core_domain/core_domain.dart';
-
 import '../entities/project.dart';
 import '../repositories/portfolio_repository.dart';
 
@@ -10,12 +8,11 @@ class GetProjectsParams {
 }
 
 /// Retrieves portfolio projects, optionally filtered by type.
-class GetProjects extends UseCase<List<Project>, GetProjectsParams> {
+class GetProjects {
   final PortfolioRepository _repository;
 
   GetProjects(this._repository);
 
-  @override
   Future<List<Project>> call(GetProjectsParams params) =>
       _repository.getProjects(type: params.type);
 }

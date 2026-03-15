@@ -19,7 +19,7 @@ Shared infrastructure consumed by features. No business logic.
 
 | Package | Purpose |
 |---|---|
-| `core_domain` | Base entities, exceptions (`AppException` sealed class), use case contracts, value objects |
+| `core_domain` | Base entities, exceptions (`AppException` sealed class), value objects |
 | `core_ui` | Design system: theme (Material 3 + Inter), adaptive scaffold, responsive builder, 10+ widgets |
 | `core_logging` | Pluggable logger abstraction (console, composite) |
 | `core_analytics` | Analytics provider interface (noop, composite) |

@@ -8,8 +8,7 @@ import '../entities/contact_message.dart';
 /// call an API endpoint or send an email.
 ///
 /// Throws [ValidationException] if fields are invalid.
-class SendContactMessage extends UseCase<void, ContactMessage> {
-  @override
+class SendContactMessage {
   Future<void> call(ContactMessage params) async {
     // Validate fields
     final errors = <String, String>{};

@@ -1,5 +1,3 @@
-import 'package:core_domain/core_domain.dart';
-
 import '../entities/blog_post.dart';
 import '../repositories/blog_repository.dart';
 
@@ -13,12 +11,11 @@ class GetBlogPostsParams {
 }
 
 /// Retrieves a list of published blog posts.
-class GetBlogPosts extends UseCase<List<BlogPost>, GetBlogPostsParams> {
+class GetBlogPosts {
   final BlogRepository _repository;
 
   GetBlogPosts(this._repository);
 
-  @override
   Future<List<BlogPost>> call(GetBlogPostsParams params) =>
       _repository.getPosts(
         tag: params.tag,

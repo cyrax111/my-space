@@ -2,16 +2,12 @@
 ///
 /// Provides base abstractions for Clean Architecture:
 /// - [AppException] hierarchy for unified error handling
-/// - [UseCase] contracts for business logic
 /// - [Entity] base class for domain objects
 /// - Value objects for type-safe domain primitives
 library core_domain;
 
 // Exceptions
 export 'src/failures/failure.dart';
-
-// Use Cases
-export 'src/use_cases/use_case.dart';
 
 // Entities
 export 'src/entities/entity.dart';
