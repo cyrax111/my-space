@@ -44,7 +44,7 @@ abstract final class AppTheme {
             side: BorderSide(color: AppColors.dividerLight.withValues(alpha: 0.5)),
           ),
           color: AppColors.cardLight,
-        ),
+        ).data,
         navigationBarTheme: const NavigationBarThemeData(
           backgroundColor: AppColors.surfaceLight,
           indicatorColor: AppColors.primaryLight,
@@ -138,7 +138,7 @@ abstract final class AppTheme {
             side: BorderSide(color: AppColors.dividerDark.withValues(alpha: 0.5)),
           ),
           color: AppColors.cardDark,
-        ),
+        ).data,
         navigationBarTheme: const NavigationBarThemeData(
           backgroundColor: AppColors.surfaceDark,
           indicatorColor: AppColors.primaryDark,

@@ -1,0 +1,8 @@
+# melos_managed_dependency_overrides: core_domain,core_logging,core_ui
+dependency_overrides:
+  core_domain:
+    path: ../core_domain
+  core_logging:
+    path: ../core_logging
+  core_ui:
+    path: ../core_ui
