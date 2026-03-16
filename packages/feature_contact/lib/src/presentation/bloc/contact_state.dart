@@ -1,22 +1,36 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:equatable/equatable.dart';
 
-part 'contact_state.freezed.dart';
+/// Status of the contact form.
+enum ContactStatus { initial, submitting, success, error }
 
 /// State for the contact BLoC.
-@freezed
-sealed class ContactState with _$ContactState {
-  /// Ready for input.
-  const factory ContactState.initial() = ContactInitial;
+///
+/// Uses the concrete-class + status-enum pattern.
+class ContactState extends Equatable {
+  final ContactStatus status;
+  final String? errorMessage;
+  final Map<String, String>? fieldErrors;
 
-  /// Form is being submitted.
-  const factory ContactState.submitting() = ContactSubmitting;
+  const ContactState({
+    this.status = ContactStatus.initial,
+    this.errorMessage,
+    this.fieldErrors,
+  });
 
-  /// Message sent successfully.
-  const factory ContactState.success() = ContactSuccess;
+  ContactState copyWith({
+    ContactStatus? status,
+    String? Function()? errorMessage,
+    Map<String, String>? Function()? fieldErrors,
+  }) {
+    return ContactState(
+      status: status ?? this.status,
+      errorMessage:
+          errorMessage != null ? errorMessage() : this.errorMessage,
+      fieldErrors:
+          fieldErrors != null ? fieldErrors() : this.fieldErrors,
+    );
+  }
 
-  /// Validation or submission error.
-  const factory ContactState.error({
-    required String message,
-    Map<String, String>? fieldErrors,
-  }) = ContactError;
+  @override
+  List<Object?> get props => [status, errorMessage, fieldErrors];
 }

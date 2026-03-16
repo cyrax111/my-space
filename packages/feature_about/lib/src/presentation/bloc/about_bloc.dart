@@ -8,7 +8,7 @@ import 'about_state.dart';
 ///
 /// Loads the user profile data (currently static, future: from API/CMS).
 class AboutBloc extends Bloc<AboutEvent, AboutState> {
-  AboutBloc() : super(const AboutState.initial()) {
+  AboutBloc() : super(const AboutState()) {
     on<AboutLoadRequested>(_onLoadRequested);
   }
 
@@ -16,12 +16,21 @@ class AboutBloc extends Bloc<AboutEvent, AboutState> {
     AboutLoadRequested event,
     Emitter<AboutState> emit,
   ) async {
-    emit(const AboutState.loading());
+    emit(state.copyWith(
+      status: AboutStatus.loading,
+      errorMessage: () => null,
+    ));
     try {
       final profile = getSampleProfile();
-      emit(AboutState.loaded(profile: profile));
+      emit(state.copyWith(
+        status: AboutStatus.loaded,
+        profile: () => profile,
+      ));
     } catch (e) {
-      emit(AboutState.error(message: 'Failed to load profile: $e'));
+      emit(state.copyWith(
+        status: AboutStatus.error,
+        errorMessage: () => 'Failed to load profile: $e',
+      ));
     }
   }
 }

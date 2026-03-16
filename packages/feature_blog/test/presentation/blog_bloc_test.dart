@@ -48,8 +48,8 @@ void main() {
       build: buildBloc,
       act: (bloc) => bloc.add(const BlogEvent.loadRequested()),
       expect: () => [
-        const BlogState.loading(),
-        BlogState.loaded(posts: [samplePost]),
+        const BlogState(status: BlogStatus.loading),
+        BlogState(status: BlogStatus.loaded, posts: [samplePost]),
       ],
     );
 
@@ -62,8 +62,10 @@ void main() {
       build: buildBloc,
       act: (bloc) => bloc.add(const BlogEvent.loadRequested()),
       expect: () => [
-        const BlogState.loading(),
-        isA<BlogError>(),
+        const BlogState(status: BlogStatus.loading),
+        isA<BlogState>()
+            .having((s) => s.status, 'status', BlogStatus.error)
+            .having((s) => s.errorMessage, 'errorMessage', isNotNull),
       ],
     );
 
@@ -86,19 +88,21 @@ void main() {
 
   group('BlogPostSelected', () {
     blocTest<BlogBloc, BlogState>(
-      'emits loaded with selectedPost when successful',
+      'emits state with selectedPost when successful',
       setUp: () {
-        when(() => mockGetBlogPosts(any()))
-            .thenAnswer((_) async => [samplePost]);
         when(() => mockGetBlogPostBySlug('test-post'))
             .thenAnswer((_) async => samplePost);
       },
       build: buildBloc,
-      seed: () => BlogState.loaded(posts: [samplePost]),
+      seed: () => BlogState(status: BlogStatus.loaded, posts: [samplePost]),
       act: (bloc) =>
           bloc.add(const BlogEvent.postSelected(slug: 'test-post')),
       expect: () => [
-        BlogState.loaded(posts: [samplePost], selectedPost: samplePost),
+        BlogState(
+          status: BlogStatus.loaded,
+          posts: [samplePost],
+          selectedPost: samplePost,
+        ),
       ],
     );
   });
@@ -107,11 +111,14 @@ void main() {
     blocTest<BlogBloc, BlogState>(
       'clears selected post',
       build: buildBloc,
-      seed: () =>
-          BlogState.loaded(posts: [samplePost], selectedPost: samplePost),
+      seed: () => BlogState(
+        status: BlogStatus.loaded,
+        posts: [samplePost],
+        selectedPost: samplePost,
+      ),
       act: (bloc) => bloc.add(const BlogEvent.postDeselected()),
       expect: () => [
-        BlogState.loaded(posts: [samplePost]),
+        BlogState(status: BlogStatus.loaded, posts: [samplePost]),
       ],
     );
   });
@@ -124,9 +131,27 @@ void main() {
             .thenAnswer((_) async => [samplePost]);
       },
       build: buildBloc,
+      seed: () => const BlogState(status: BlogStatus.loaded),
       act: (bloc) => bloc.add(const BlogEvent.refreshRequested()),
       expect: () => [
-        BlogState.loaded(posts: [samplePost]),
+        BlogState(status: BlogStatus.loaded, posts: [samplePost]),
+      ],
+    );
+
+    blocTest<BlogBloc, BlogState>(
+      'preserves posts on refresh failure',
+      setUp: () {
+        when(() => mockGetBlogPosts(any()))
+            .thenThrow(const NetworkException('offline'));
+      },
+      build: buildBloc,
+      seed: () => BlogState(status: BlogStatus.loaded, posts: [samplePost]),
+      act: (bloc) => bloc.add(const BlogEvent.refreshRequested()),
+      expect: () => [
+        isA<BlogState>()
+            .having((s) => s.status, 'status', BlogStatus.error)
+            .having((s) => s.posts, 'posts', [samplePost])
+            .having((s) => s.errorMessage, 'errorMessage', isNotNull),
       ],
     );
   });

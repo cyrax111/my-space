@@ -40,8 +40,11 @@ void main() {
       build: buildBloc,
       act: (bloc) => bloc.add(const PortfolioEvent.loadRequested()),
       expect: () => [
-        const PortfolioState.loading(),
-        PortfolioState.loaded(projects: [sampleProject]),
+        const PortfolioState(status: PortfolioStatus.loading),
+        PortfolioState(
+          status: PortfolioStatus.loaded,
+          projects: [sampleProject],
+        ),
       ],
     );
 
@@ -54,8 +57,10 @@ void main() {
       build: buildBloc,
       act: (bloc) => bloc.add(const PortfolioEvent.loadRequested()),
       expect: () => [
-        const PortfolioState.loading(),
-        isA<PortfolioError>(),
+        const PortfolioState(status: PortfolioStatus.loading),
+        isA<PortfolioState>()
+            .having((s) => s.status, 'status', PortfolioStatus.error)
+            .having((s) => s.errorMessage, 'errorMessage', isNotNull),
       ],
     );
 
@@ -86,9 +91,33 @@ void main() {
             .thenAnswer((_) async => [sampleProject]);
       },
       build: buildBloc,
+      seed: () => const PortfolioState(status: PortfolioStatus.loaded),
       act: (bloc) => bloc.add(const PortfolioEvent.refreshRequested()),
       expect: () => [
-        PortfolioState.loaded(projects: [sampleProject]),
+        PortfolioState(
+          status: PortfolioStatus.loaded,
+          projects: [sampleProject],
+        ),
+      ],
+    );
+
+    blocTest<PortfolioBloc, PortfolioState>(
+      'preserves projects on refresh failure',
+      setUp: () {
+        when(() => mockGetProjects(any()))
+            .thenThrow(const NetworkException('offline'));
+      },
+      build: buildBloc,
+      seed: () => PortfolioState(
+        status: PortfolioStatus.loaded,
+        projects: [sampleProject],
+      ),
+      act: (bloc) => bloc.add(const PortfolioEvent.refreshRequested()),
+      expect: () => [
+        isA<PortfolioState>()
+            .having((s) => s.status, 'status', PortfolioStatus.error)
+            .having((s) => s.projects, 'projects', [sampleProject])
+            .having((s) => s.errorMessage, 'errorMessage', isNotNull),
       ],
     );
   });

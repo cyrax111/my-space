@@ -15,19 +15,24 @@ class PortfolioPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PortfolioBloc, PortfolioState>(
-      builder: (context, state) => switch (state) {
-        PortfolioInitial() =>
+      builder: (context, state) => switch (state.status) {
+        PortfolioStatus.initial ||
+        PortfolioStatus.loading when state.projects.isEmpty =>
           const LoadingIndicator(message: 'Loading projects...'),
-        PortfolioLoading() =>
-          const LoadingIndicator(message: 'Loading projects...'),
-        PortfolioError(:final message) => ErrorView(
-            message: message,
+        PortfolioStatus.error when state.projects.isEmpty => ErrorView(
+            message: state.errorMessage ?? 'Something went wrong',
             onRetry: () => context
                 .read<PortfolioBloc>()
                 .add(const PortfolioEvent.loadRequested()),
           ),
-        PortfolioLoaded(:final projects, :final activeFilter) =>
-          _LoadedContent(projects: projects, activeFilter: activeFilter),
+        _ => _LoadedContent(
+            projects: state.projects,
+            activeFilter: state.activeFilter,
+            errorMessage:
+                state.status == PortfolioStatus.error
+                    ? state.errorMessage
+                    : null,
+          ),
       },
     );
   }
@@ -36,8 +41,13 @@ class PortfolioPage extends StatelessWidget {
 class _LoadedContent extends StatelessWidget {
   final List<Project> projects;
   final ProjectType? activeFilter;
+  final String? errorMessage;
 
-  const _LoadedContent({required this.projects, this.activeFilter});
+  const _LoadedContent({
+    required this.projects,
+    this.activeFilter,
+    this.errorMessage,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -52,9 +62,24 @@ class _LoadedContent extends StatelessWidget {
       slivers: [
         SliverAdaptivePadding(
           sliver: SliverToBoxAdapter(
-            child: SectionHeader(
-              title: 'Portfolio',
-              subtitle: '${projects.length} projects',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SectionHeader(
+                  title: 'Portfolio',
+                  subtitle: '${projects.length} projects',
+                ),
+                if (errorMessage != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                    child: Text(
+                      'Refresh failed: $errorMessage',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ),

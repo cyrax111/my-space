@@ -9,8 +9,10 @@ void main() {
       build: () => AboutBloc(),
       act: (bloc) => bloc.add(const AboutEvent.loadRequested()),
       expect: () => [
-        const AboutState.loading(),
-        isA<AboutLoaded>(),
+        const AboutState(status: AboutStatus.loading),
+        isA<AboutState>()
+            .having((s) => s.status, 'status', AboutStatus.loaded)
+            .having((s) => s.profile, 'profile', isNotNull),
       ],
     );
 
@@ -20,11 +22,11 @@ void main() {
       act: (bloc) => bloc.add(const AboutEvent.loadRequested()),
       verify: (bloc) {
         final state = bloc.state;
-        expect(state, isA<AboutLoaded>());
-        final loaded = state as AboutLoaded;
-        expect(loaded.profile.name, 'Alexander Bosak');
-        expect(loaded.profile.skills, isNotEmpty);
-        expect(loaded.profile.experiences, isNotEmpty);
+        expect(state.status, AboutStatus.loaded);
+        expect(state.profile, isNotNull);
+        expect(state.profile!.name, 'Alexander Bosak');
+        expect(state.profile!.skills, isNotEmpty);
+        expect(state.profile!.experiences, isNotEmpty);
       },
     );
   });

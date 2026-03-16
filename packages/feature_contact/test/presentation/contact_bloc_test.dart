@@ -40,8 +40,8 @@ void main() {
         message: 'This is a test message.',
       )),
       expect: () => [
-        const ContactState.submitting(),
-        const ContactState.success(),
+        const ContactState(status: ContactStatus.submitting),
+        const ContactState(status: ContactStatus.success),
       ],
     );
 
@@ -63,8 +63,10 @@ void main() {
         message: 'Short test msg.',
       )),
       expect: () => [
-        const ContactState.submitting(),
-        isA<ContactError>(),
+        const ContactState(status: ContactStatus.submitting),
+        isA<ContactState>()
+            .having((s) => s.status, 'status', ContactStatus.error)
+            .having((s) => s.errorMessage, 'errorMessage', isNotNull),
       ],
     );
 
@@ -87,10 +89,9 @@ void main() {
       )),
       verify: (bloc) {
         final state = bloc.state;
-        expect(state, isA<ContactError>());
-        final errorState = state as ContactError;
-        expect(errorState.fieldErrors, isNotNull);
-        expect(errorState.fieldErrors!['email'], 'Invalid email');
+        expect(state.status, ContactStatus.error);
+        expect(state.fieldErrors, isNotNull);
+        expect(state.fieldErrors!['email'], 'Invalid email');
       },
     );
   });
@@ -99,10 +100,10 @@ void main() {
     blocTest<ContactBloc, ContactState>(
       'resets to initial state',
       build: buildBloc,
-      seed: () => const ContactState.success(),
+      seed: () => const ContactState(status: ContactStatus.success),
       act: (bloc) => bloc.add(const ContactEvent.resetRequested()),
       expect: () => [
-        const ContactState.initial(),
+        const ContactState(),
       ],
     );
   });

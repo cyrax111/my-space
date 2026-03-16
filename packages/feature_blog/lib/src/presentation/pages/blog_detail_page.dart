@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 
 import '../../domain/entities/blog_post.dart';
 import '../bloc/blog_bloc.dart';
-import '../bloc/blog_event.dart';
 import '../bloc/blog_state.dart';
 
 /// Blog detail page — shows the full content of a post.
@@ -18,7 +17,7 @@ class BlogDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<BlogBloc, BlogState>(
       builder: (context, state) {
-        if (state is! BlogLoaded || state.selectedPost == null) {
+        if (state.status != BlogStatus.loaded || state.selectedPost == null) {
           return const LoadingIndicator(message: 'Loading post...');
         }
         return _PostContent(post: state.selectedPost!);

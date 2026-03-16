@@ -16,16 +16,18 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AboutBloc, AboutState>(
-      builder: (context, state) => switch (state) {
-        AboutInitial() => const LoadingIndicator(message: 'Loading...'),
-        AboutLoading() => const LoadingIndicator(message: 'Loading...'),
-        AboutError(:final message) => ErrorView(
-            message: message,
+      builder: (context, state) => switch (state.status) {
+        AboutStatus.initial || AboutStatus.loading =>
+          const LoadingIndicator(message: 'Loading...'),
+        AboutStatus.error when state.profile == null => ErrorView(
+            message: state.errorMessage ?? 'Something went wrong',
             onRetry: () => context
                 .read<AboutBloc>()
                 .add(const AboutEvent.loadRequested()),
           ),
-        AboutLoaded(:final profile) => _ProfileContent(profile: profile),
+        _ when state.profile != null =>
+          _ProfileContent(profile: state.profile!),
+        _ => const LoadingIndicator(message: 'Loading...'),
       },
     );
   }

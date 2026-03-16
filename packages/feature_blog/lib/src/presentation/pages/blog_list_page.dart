@@ -17,16 +17,17 @@ class BlogListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<BlogBloc, BlogState>(
-      builder: (context, state) => switch (state) {
-        BlogInitial() => const LoadingIndicator(message: 'Loading posts...'),
-        BlogLoading() => const LoadingIndicator(message: 'Loading posts...'),
-        BlogError(:final message) => ErrorView(
-            message: message,
+      builder: (context, state) => switch (state.status) {
+        BlogStatus.initial ||
+        BlogStatus.loading when state.posts.isEmpty =>
+          const LoadingIndicator(message: 'Loading posts...'),
+        BlogStatus.error when state.posts.isEmpty => ErrorView(
+            message: state.errorMessage ?? 'Something went wrong',
             onRetry: () => context
                 .read<BlogBloc>()
                 .add(const BlogEvent.loadRequested()),
           ),
-        BlogLoaded(:final posts, :final activeTag) => posts.isEmpty
+        _ => state.posts.isEmpty
             ? const EmptyState(
                 icon: Icons.article_outlined,
                 message: 'No posts yet. Check back soon!',
@@ -41,21 +42,39 @@ class BlogListPage extends StatelessWidget {
                   slivers: [
                     SliverAdaptivePadding(
                       sliver: SliverToBoxAdapter(
-                        child: SectionHeader(
-                          title: 'Blog',
-                          subtitle: activeTag != null
-                              ? 'Filtered by: $activeTag'
-                              : '${posts.length} posts',
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SectionHeader(
+                              title: 'Blog',
+                              subtitle: state.activeTag != null
+                                  ? 'Filtered by: ${state.activeTag}'
+                                  : '${state.posts.length} posts',
+                            ),
+                            if (state.status == BlogStatus.error &&
+                                state.errorMessage != null)
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    bottom: AppSpacing.sm),
+                                child: Text(
+                                  'Refresh failed: ${state.errorMessage}',
+                                  style: TextStyle(
+                                    color:
+                                        Theme.of(context).colorScheme.error,
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                     ),
                     SliverAdaptivePadding(
                       sliver: SliverList.separated(
-                        itemCount: posts.length,
+                        itemCount: state.posts.length,
                         separatorBuilder: (_, __) =>
                             const SizedBox(height: AppSpacing.md),
                         itemBuilder: (context, index) {
-                          final post = posts[index];
+                          final post = state.posts[index];
                           return BlogPostCard(
                             post: post,
                             onTap: () => onPostTap?.call(post.slug),

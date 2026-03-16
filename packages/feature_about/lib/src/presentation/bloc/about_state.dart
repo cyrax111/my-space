@@ -1,14 +1,37 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:equatable/equatable.dart';
 
 import '../../domain/entities/profile.dart';
 
-part 'about_state.freezed.dart';
+/// Status of the about feature.
+enum AboutStatus { initial, loading, loaded, error }
 
 /// State for the about BLoC.
-@freezed
-sealed class AboutState with _$AboutState {
-  const factory AboutState.initial() = AboutInitial;
-  const factory AboutState.loading() = AboutLoading;
-  const factory AboutState.loaded({required Profile profile}) = AboutLoaded;
-  const factory AboutState.error({required String message}) = AboutError;
+///
+/// Uses the concrete-class + status-enum pattern.
+class AboutState extends Equatable {
+  final AboutStatus status;
+  final Profile? profile;
+  final String? errorMessage;
+
+  const AboutState({
+    this.status = AboutStatus.initial,
+    this.profile,
+    this.errorMessage,
+  });
+
+  AboutState copyWith({
+    AboutStatus? status,
+    Profile? Function()? profile,
+    String? Function()? errorMessage,
+  }) {
+    return AboutState(
+      status: status ?? this.status,
+      profile: profile != null ? profile() : this.profile,
+      errorMessage:
+          errorMessage != null ? errorMessage() : this.errorMessage,
+    );
+  }
+
+  @override
+  List<Object?> get props => [status, profile, errorMessage];
 }

@@ -12,7 +12,7 @@ class ContactBloc extends Bloc<ContactEvent, ContactState> {
 
   ContactBloc({required SendContactMessage sendContactMessage})
       : _sendContactMessage = sendContactMessage,
-        super(const ContactState.initial()) {
+        super(const ContactState()) {
     on<ContactSubmitRequested>(_onSubmitRequested);
     on<ContactResetRequested>(_onResetRequested);
   }
@@ -21,7 +21,11 @@ class ContactBloc extends Bloc<ContactEvent, ContactState> {
     ContactSubmitRequested event,
     Emitter<ContactState> emit,
   ) async {
-    emit(const ContactState.submitting());
+    emit(state.copyWith(
+      status: ContactStatus.submitting,
+      errorMessage: () => null,
+      fieldErrors: () => null,
+    ));
 
     final message = ContactMessage(
       name: event.name,
@@ -33,14 +37,19 @@ class ContactBloc extends Bloc<ContactEvent, ContactState> {
 
     try {
       await _sendContactMessage(message);
-      emit(const ContactState.success());
+      emit(state.copyWith(status: ContactStatus.success));
     } on ValidationException catch (e) {
-      emit(ContactState.error(
-        message: e.message,
-        fieldErrors: e.fieldErrors.isNotEmpty ? e.fieldErrors : null,
+      emit(state.copyWith(
+        status: ContactStatus.error,
+        errorMessage: () => e.message,
+        fieldErrors: () =>
+            e.fieldErrors.isNotEmpty ? e.fieldErrors : null,
       ));
     } on AppException catch (e) {
-      emit(ContactState.error(message: e.message));
+      emit(state.copyWith(
+        status: ContactStatus.error,
+        errorMessage: () => e.message,
+      ));
     }
   }
 
@@ -48,6 +57,6 @@ class ContactBloc extends Bloc<ContactEvent, ContactState> {
     ContactResetRequested event,
     Emitter<ContactState> emit,
   ) {
-    emit(const ContactState.initial());
+    emit(const ContactState());
   }
 }

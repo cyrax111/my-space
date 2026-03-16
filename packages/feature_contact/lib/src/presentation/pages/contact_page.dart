@@ -53,7 +53,7 @@ class _ContactPageState extends State<ContactPage> {
   Widget build(BuildContext context) {
     return BlocConsumer<ContactBloc, ContactState>(
       listener: (context, state) {
-        if (state is ContactSuccess) {
+        if (state.status == ContactStatus.success) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Message sent successfully! 🎉'),
@@ -63,13 +63,13 @@ class _ContactPageState extends State<ContactPage> {
         }
       },
       builder: (context, state) {
-        if (state is ContactSuccess) {
+        if (state.status == ContactStatus.success) {
           return _SuccessView(onSendAnother: _reset);
         }
 
-        final isSubmitting = state is ContactSubmitting;
+        final isSubmitting = state.status == ContactStatus.submitting;
         final fieldErrors =
-            state is ContactError ? state.fieldErrors : null;
+            state.status == ContactStatus.error ? state.fieldErrors : null;
 
         return CustomScrollView(
           slivers: [
@@ -85,12 +85,14 @@ class _ContactPageState extends State<ContactPage> {
                     const SizedBox(height: AppSpacing.md),
 
                     // Error banner
-                    if (state is ContactError && fieldErrors == null)
+                    if (state.status == ContactStatus.error &&
+                        fieldErrors == null)
                       Padding(
                         padding:
                             const EdgeInsets.only(bottom: AppSpacing.md),
                         child: ErrorView(
-                          message: state.message,
+                          message:
+                              state.errorMessage ?? 'Something went wrong',
                           onRetry: _submit,
                         ),
                       ),

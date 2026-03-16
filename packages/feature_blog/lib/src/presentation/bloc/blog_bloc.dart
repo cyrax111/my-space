@@ -18,29 +18,36 @@ class BlogBloc extends Bloc<BlogEvent, BlogState> {
     required GetBlogPostBySlug getBlogPostBySlug,
   })  : _getBlogPosts = getBlogPosts,
         _getBlogPostBySlug = getBlogPostBySlug,
-        super(const BlogState.initial()) {
+        super(const BlogState()) {
     on<BlogLoadRequested>(_onLoadRequested);
     on<BlogPostSelected>(_onPostSelected);
     on<BlogPostDeselected>(_onPostDeselected);
     on<BlogRefreshRequested>(_onRefreshRequested);
   }
 
-  String? _currentTag;
-
   Future<void> _onLoadRequested(
     BlogLoadRequested event,
     Emitter<BlogState> emit,
   ) async {
-    _currentTag = event.tag;
-    emit(const BlogState.loading());
+    emit(state.copyWith(
+      status: BlogStatus.loading,
+      errorMessage: () => null,
+    ));
 
     try {
       final posts = await _getBlogPosts(
         GetBlogPostsParams(tag: event.tag),
       );
-      emit(BlogState.loaded(posts: posts, activeTag: event.tag));
+      emit(state.copyWith(
+        status: BlogStatus.loaded,
+        posts: posts,
+        activeTag: () => event.tag,
+      ));
     } on AppException catch (e) {
-      emit(BlogState.error(message: e.message));
+      emit(state.copyWith(
+        status: BlogStatus.error,
+        errorMessage: () => e.message,
+      ));
     }
   }
 
@@ -48,14 +55,16 @@ class BlogBloc extends Bloc<BlogEvent, BlogState> {
     BlogPostSelected event,
     Emitter<BlogState> emit,
   ) async {
-    final currentState = state;
-    if (currentState is! BlogLoaded) return;
+    if (state.status != BlogStatus.loaded) return;
 
     try {
       final post = await _getBlogPostBySlug(event.slug);
-      emit(currentState.copyWith(selectedPost: post));
+      emit(state.copyWith(selectedPost: () => post));
     } on AppException catch (e) {
-      emit(BlogState.error(message: e.message));
+      emit(state.copyWith(
+        status: BlogStatus.error,
+        errorMessage: () => e.message,
+      ));
     }
   }
 
@@ -63,9 +72,8 @@ class BlogBloc extends Bloc<BlogEvent, BlogState> {
     BlogPostDeselected event,
     Emitter<BlogState> emit,
   ) {
-    final currentState = state;
-    if (currentState is! BlogLoaded) return;
-    emit(currentState.copyWith(selectedPost: null));
+    if (state.status != BlogStatus.loaded) return;
+    emit(state.copyWith(selectedPost: () => null));
   }
 
   Future<void> _onRefreshRequested(
@@ -74,11 +82,18 @@ class BlogBloc extends Bloc<BlogEvent, BlogState> {
   ) async {
     try {
       final posts = await _getBlogPosts(
-        GetBlogPostsParams(tag: _currentTag),
+        GetBlogPostsParams(tag: state.activeTag),
       );
-      emit(BlogState.loaded(posts: posts, activeTag: _currentTag));
+      emit(state.copyWith(
+        status: BlogStatus.loaded,
+        posts: posts,
+        errorMessage: () => null,
+      ));
     } on AppException catch (e) {
-      emit(BlogState.error(message: e.message));
+      emit(state.copyWith(
+        status: BlogStatus.error,
+        errorMessage: () => e.message,
+      ));
     }
   }
 }
