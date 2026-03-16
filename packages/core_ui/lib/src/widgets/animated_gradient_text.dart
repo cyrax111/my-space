@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
-
 /// Text with an animated gradient effect.
 ///
 /// Used for hero sections and attention-grabbing headings.
@@ -40,6 +38,8 @@ class _AnimatedGradientTextState extends State<AnimatedGradientText>
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
@@ -48,10 +48,10 @@ class _AnimatedGradientTextState extends State<AnimatedGradientText>
             return LinearGradient(
               begin: Alignment(-1.0 + _controller.value * 2, 0),
               end: Alignment(1.0 + _controller.value * 2, 0),
-              colors: const [
-                AppColors.primary,
-                AppColors.secondary,
-                AppColors.primary,
+              colors: [
+                colorScheme.primary,
+                colorScheme.secondary,
+                colorScheme.primary,
               ],
             ).createShader(bounds);
           },

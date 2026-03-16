@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 
 /// Animated skill progress bar (inspired by adhamdannaway.com/about).
@@ -21,7 +20,7 @@ class SkillBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final barColor = color ?? AppColors.primary;
+    final barColor = color ?? theme.colorScheme.primary;
 
     return Semantics(
       label: '$name: ${percentage.round()}%',
