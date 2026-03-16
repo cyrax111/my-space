@@ -11,6 +11,7 @@ import '../bloc/blog_state.dart';
 /// Blog detail page — shows the full content of a post.
 ///
 /// Dispatches [BlogPostSelected] on init to load the post by [slug].
+/// Used for standalone navigation on compact/medium screens.
 class BlogDetailPage extends StatefulWidget {
   final String slug;
 
@@ -42,16 +43,20 @@ class _BlogDetailPageState extends State<BlogDetailPage> {
           }
           return const LoadingIndicator(message: 'Loading post...');
         }
-        return _PostContent(post: state.selectedPost!);
+        return BlogDetailContent(post: state.selectedPost!);
       },
     );
   }
 }
 
-class _PostContent extends StatelessWidget {
+/// Reusable blog post content widget.
+///
+/// Used by both [BlogDetailPage] (standalone) and the master-detail
+/// split view's detail pane.
+class BlogDetailContent extends StatelessWidget {
   final BlogPost post;
 
-  const _PostContent({required this.post});
+  const BlogDetailContent({super.key, required this.post});
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +76,8 @@ class _PostContent extends StatelessWidget {
           ),
 
         // Metadata
-        SliverAdaptivePadding(
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           sliver: SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.only(
@@ -167,7 +173,8 @@ class _PostContent extends StatelessWidget {
         ),
 
         // Divider
-        SliverAdaptivePadding(
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           sliver: SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
@@ -177,7 +184,8 @@ class _PostContent extends StatelessWidget {
         ),
 
         // Content body
-        SliverAdaptivePadding(
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           sliver: SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
