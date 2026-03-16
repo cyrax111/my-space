@@ -23,8 +23,8 @@ class ContactBloc extends Bloc<ContactEvent, ContactState> {
   ) async {
     emit(state.copyWith(
       status: ContactStatus.submitting,
-      errorMessage: () => null,
-      fieldErrors: () => null,
+      errorMessage: null,
+      fieldErrors: null,
     ));
 
     final message = ContactMessage(
@@ -41,14 +41,13 @@ class ContactBloc extends Bloc<ContactEvent, ContactState> {
     } on ValidationException catch (e) {
       emit(state.copyWith(
         status: ContactStatus.error,
-        errorMessage: () => e.message,
-        fieldErrors: () =>
-            e.fieldErrors.isNotEmpty ? e.fieldErrors : null,
+        errorMessage: e.message,
+        fieldErrors: e.fieldErrors.isNotEmpty ? e.fieldErrors : null,
       ));
     } on AppException catch (e) {
       emit(state.copyWith(
         status: ContactStatus.error,
-        errorMessage: () => e.message,
+        errorMessage: e.message,
       ));
     }
   }

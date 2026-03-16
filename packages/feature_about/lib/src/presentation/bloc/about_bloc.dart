@@ -18,18 +18,18 @@ class AboutBloc extends Bloc<AboutEvent, AboutState> {
   ) async {
     emit(state.copyWith(
       status: AboutStatus.loading,
-      errorMessage: () => null,
+      errorMessage: null,
     ));
     try {
       final profile = getSampleProfile();
       emit(state.copyWith(
         status: AboutStatus.loaded,
-        profile: () => profile,
+        profile: profile,
       ));
     } catch (e) {
       emit(state.copyWith(
         status: AboutStatus.error,
-        errorMessage: () => 'Failed to load profile: $e',
+        errorMessage: 'Failed to load profile: $e',
       ));
     }
   }

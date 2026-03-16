@@ -31,7 +31,7 @@ class BlogBloc extends Bloc<BlogEvent, BlogState> {
   ) async {
     emit(state.copyWith(
       status: BlogStatus.loading,
-      errorMessage: () => null,
+      errorMessage: null,
     ));
 
     try {
@@ -41,12 +41,12 @@ class BlogBloc extends Bloc<BlogEvent, BlogState> {
       emit(state.copyWith(
         status: BlogStatus.loaded,
         posts: posts,
-        activeTag: () => event.tag,
+        activeTag: event.tag,
       ));
     } on AppException catch (e) {
       emit(state.copyWith(
         status: BlogStatus.error,
-        errorMessage: () => e.message,
+        errorMessage: e.message,
       ));
     }
   }
@@ -59,11 +59,11 @@ class BlogBloc extends Bloc<BlogEvent, BlogState> {
 
     try {
       final post = await _getBlogPostBySlug(event.slug);
-      emit(state.copyWith(selectedPost: () => post));
+      emit(state.copyWith(selectedPost: post));
     } on AppException catch (e) {
       emit(state.copyWith(
         status: BlogStatus.error,
-        errorMessage: () => e.message,
+        errorMessage: e.message,
       ));
     }
   }
@@ -73,7 +73,7 @@ class BlogBloc extends Bloc<BlogEvent, BlogState> {
     Emitter<BlogState> emit,
   ) {
     if (state.status != BlogStatus.loaded) return;
-    emit(state.copyWith(selectedPost: () => null));
+    emit(state.copyWith(selectedPost: null));
   }
 
   Future<void> _onRefreshRequested(
@@ -87,12 +87,12 @@ class BlogBloc extends Bloc<BlogEvent, BlogState> {
       emit(state.copyWith(
         status: BlogStatus.loaded,
         posts: posts,
-        errorMessage: () => null,
+        errorMessage: null,
       ));
     } on AppException catch (e) {
       emit(state.copyWith(
         status: BlogStatus.error,
-        errorMessage: () => e.message,
+        errorMessage: e.message,
       ));
     }
   }

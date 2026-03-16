@@ -22,7 +22,7 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
   ) async {
     emit(state.copyWith(
       status: PortfolioStatus.loading,
-      errorMessage: () => null,
+      errorMessage: null,
     ));
 
     try {
@@ -31,12 +31,12 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
       emit(state.copyWith(
         status: PortfolioStatus.loaded,
         projects: projects,
-        activeFilter: () => event.type,
+        activeFilter: event.type,
       ));
     } on AppException catch (e) {
       emit(state.copyWith(
         status: PortfolioStatus.error,
-        errorMessage: () => e.message,
+        errorMessage: e.message,
       ));
     }
   }
@@ -51,12 +51,12 @@ class PortfolioBloc extends Bloc<PortfolioEvent, PortfolioState> {
       emit(state.copyWith(
         status: PortfolioStatus.loaded,
         projects: projects,
-        errorMessage: () => null,
+        errorMessage: null,
       ));
     } on AppException catch (e) {
       emit(state.copyWith(
         status: PortfolioStatus.error,
-        errorMessage: () => e.message,
+        errorMessage: e.message,
       ));
     }
   }

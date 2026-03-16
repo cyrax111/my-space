@@ -14,7 +14,6 @@ dependencies:
     path: ../core_domain
   core_ui:
     path: ../core_ui
-  equatable: ^2.0.7
   freezed_annotation: ^2.4.1
   flutter_bloc: ^8.1.5
 
