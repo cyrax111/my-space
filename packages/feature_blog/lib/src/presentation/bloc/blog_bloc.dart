@@ -55,11 +55,12 @@ class BlogBloc extends Bloc<BlogEvent, BlogState> {
     BlogPostSelected event,
     Emitter<BlogState> emit,
   ) async {
-    if (state.status != BlogStatus.loaded) return;
-
     try {
       final post = await _getBlogPostBySlug(event.slug);
-      emit(state.copyWith(selectedPost: post));
+      emit(state.copyWith(
+        status: BlogStatus.loaded,
+        selectedPost: post,
+      ));
     } on AppException catch (e) {
       emit(state.copyWith(
         status: BlogStatus.error,
