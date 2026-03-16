@@ -20,3 +20,4 @@ export 'src/presentation/bloc/blog_event.dart';
 export 'src/presentation/bloc/blog_state.dart';
 export 'src/presentation/pages/blog_list_page.dart';
 export 'src/presentation/pages/blog_detail_page.dart';
+export 'src/presentation/pages/blog_master_detail_page.dart';

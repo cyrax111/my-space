@@ -37,7 +37,7 @@ final GoRouter appRouter = GoRouter(
           path: AppRoutes.blog,
           name: 'blog',
           pageBuilder: (context, state) => NoTransitionPage(
-            child: BlogListPage(
+            child: BlogMasterDetailPage(
               onPostTap: (slug) => context.go('${AppRoutes.blog}/$slug'),
             ),
           ),
