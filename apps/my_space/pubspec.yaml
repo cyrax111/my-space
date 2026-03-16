@@ -1,0 +1,58 @@
+name: my_space
+description: Personal portfolio & blog — cross-platform with Flutter.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.6.0
+  flutter: ^3.27.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Core packages
+  core_domain:
+    path: ../../packages/core_domain
+  core_ui:
+    path: ../../packages/core_ui
+  core_logging:
+    path: ../../packages/core_logging
+  core_analytics:
+    path: ../../packages/core_analytics
+  core_feature_flags:
+    path: ../../packages/core_feature_flags
+  core_storage:
+    path: ../../packages/core_storage
+
+  # Feature packages
+  feature_blog:
+    path: ../../packages/feature_blog
+  feature_portfolio:
+    path: ../../packages/feature_portfolio
+  feature_about:
+    path: ../../packages/feature_about
+  feature_contact:
+    path: ../../packages/feature_contact
+
+  # Navigation
+  go_router: ^14.6.2
+
+  # State management
+  flutter_bloc: ^8.1.5
+
+  # DI
+  get_it: ^8.0.2
+
+  # Utilities
+  url_launcher: ^6.2.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  mocktail: ^1.0.4
+  bloc_test: ^9.1.7
+
+flutter:
+  uses-material-design: true

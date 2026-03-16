@@ -1,0 +1,22 @@
+# melos_managed_dependency_overrides: core_analytics,core_domain,core_feature_flags,core_logging,core_storage,core_ui,feature_about,feature_blog,feature_contact,feature_portfolio
+dependency_overrides:
+  core_analytics:
+    path: ../../packages/core_analytics
+  core_domain:
+    path: ../../packages/core_domain
+  core_feature_flags:
+    path: ../../packages/core_feature_flags
+  core_logging:
+    path: ../../packages/core_logging
+  core_storage:
+    path: ../../packages/core_storage
+  core_ui:
+    path: ../../packages/core_ui
+  feature_about:
+    path: ../../packages/feature_about
+  feature_blog:
+    path: ../../packages/feature_blog
+  feature_contact:
+    path: ../../packages/feature_contact
+  feature_portfolio:
+    path: ../../packages/feature_portfolio
